@@ -32,6 +32,11 @@ Creating an infinite loop:
 while True:
 ```
 
+Filling all the screen:
+```python
+screen.fill((0, 0, 0))
+```
+
 Setting a rotation mode of the mesh:
 ```python
 mesh.rotate_mode()
