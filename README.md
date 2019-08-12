@@ -6,7 +6,7 @@ My python 3D engine includes rotation the shapes, its projection to the PyGame S
 
 ## Usage
 
-Importiong all needed libraries:
+Importing all needed libraries:
 ```python
 import pygame                       # Importing PyGame
 from Engine3D import Engine         # Importing 3D Engine
