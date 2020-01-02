@@ -8,17 +8,27 @@ class Engine:
         pygame.font.init()
         self.screen = screen
         self.font = pygame.font.SysFont('arial', 30)
+        self.toDraw = []
 
-    def draw(self, *items):
+    
+    def addToDraw(self, *items):
+        """
+        Add to draw one or more items. engine.draw() to blit them
+
+        :param list items: Item of [figure, is_points, is_lines, is_surfaces]
+        """
+        self.toDraw.extend(items)
+
+
+    def draw(self):
         """
         Draws items on the screen
 
-        :param list items: Item of [figure, is_points, is_lines, is_surfaces]
         """
 
         # Collecting to_blit
         to_blit = []
-        for item in items:
+        for item in self.toDraw:
             if item[1]:
                 to_blit.extend([['point', [i], item[0].point_settings[0][c % len(item[0].point_settings[0])],
                                  item[0].point_settings[1], self.font,
@@ -44,6 +54,9 @@ class Engine:
                 Engine.draw_line(unit[1], unit[2], self.screen, unit[3])
             if unit[0] == 'surface':
                 Engine.draw_surface(unit[1], unit[2], self.screen)
+
+        # Clear toDraw list
+        self.toDraw = []
 
     def draw_depth_map(self, *items):
         def round_depth(surface_depth):

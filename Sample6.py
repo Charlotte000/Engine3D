@@ -2,7 +2,7 @@ import pygame
 from opensimplex import OpenSimplex
 
 from Engine3D import Engine
-from GeometricShapes import UniformSphere, Sphere
+from GeometricShapes import UniformSphere
 from data.vector import Vector
 
 window = pygame.display.set_mode((500, 500))
@@ -10,7 +10,6 @@ engine = Engine(window)
 
 sp = UniformSphere([250, 250, 0], 100, 2000)
 sp.point_set(1, '', [100, 100, 100], [0, 0, 255])
-
 
 gen = OpenSimplex()
 for i in sp.points:
@@ -27,7 +26,11 @@ while True:
     window.fill((0, 0, 0))
 
     sp.rotate_mode()
-    engine.draw([sp, True, False, False])
+
+    engine.addToDraw([sp, True, False, False])
+
+
+    engine.draw()
 
     pygame.display.flip()
     pygame.time.Clock().tick(60)

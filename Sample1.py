@@ -23,8 +23,11 @@ while True:
     # Setting rotation mode by the mouse on this object
     mesh.rotate_mode()
 
-    # Drawing the objects [object, isPoints, isLines, isSurfaces]
-    engine.draw([mesh, True, True, True])
+    # Adding to draw list the objects [object, isPoints, isLines, isSurfaces]
+    engine.addToDraw([mesh, True, True, True])
+
+    # Draw the world
+    engine.draw()
 
     # Update the display
     pygame.display.flip()

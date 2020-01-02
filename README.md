@@ -42,9 +42,14 @@ Setting a rotation mode of the mesh:
 mesh.rotate_mode()
 ```
 
-Drawing our object:
+Adding our object to the world:
 ```python
-engine3d.draw([mesh, True, True, True])
+engine3d.addToDraw([mesh, True, True, True])
+```
+
+Drawing the world:
+```python
+engine3d.draw()
 ```
 
 Updating screen using *PyGame*:

@@ -30,8 +30,11 @@ while True:
     window.fill((91, 91, 91))
     mesh.rotate_mode()
 
-    # Drawing the objects [object, isPoints, isLines, isSurfaces]
-    engine.draw([mesh, False, False, True])
+    # Adding to draw list the objects [object, isPoints, isLines, isSurfaces]
+    engine.addToDraw([mesh, False, False, True])
+
+    # Drawing the world
+    engine.draw()
 
     pygame.display.flip()
     pygame.time.Clock().tick(60)

@@ -15,7 +15,9 @@ while True:
     window.fill((91, 91, 91))
 
     m.rotate_mode()
-    engine.draw([m, False, False, True])
+    engine.addToDraw([m, False, False, True])
+
+    engine.draw()
 
     pygame.display.flip()
     pygame.time.Clock().tick(60)
