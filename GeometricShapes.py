@@ -2,6 +2,7 @@ from Engine3D import Engine
 from data.vector import Vector
 from math import pi, sin, cos
 from requests import get
+import numpy
 
 
 class Cube(Engine.Object):
@@ -327,3 +328,33 @@ class FileObject(Engine.Object):
         for i in range(len(figure)):
             figure[i].multiply(scale)
         return figure, surfaces
+
+
+class UniformSphere(Engine.Object):
+    def __init__(self, center, radius, detail):
+        """
+        Creates a uniform sphere
+
+        :param list center:
+        :param float radius:
+        :param int detail:
+        """
+        self.points, self.lines, self.surfaces = UniformSphere.create(radius, detail)
+        self.radius = radius
+        super().__init__(center)
+
+    @staticmethod
+    def create(radius, detail):
+        indices = numpy.arange(0, detail, dtype=float) + 0.5
+
+        phi = numpy.arccos(1 - 2*indices/detail)
+        theta = pi * (1 + 5**0.5) * indices
+
+        x, y, z = numpy.cos(theta) * numpy.sin(phi), numpy.sin(theta) * numpy.sin(phi), numpy.cos(phi);
+        points = []
+
+        for i in range(len(x)):
+            points.append(Vector(int(x[i] * radius), int(y[i] * radius), int(z[i] * radius)))
+
+        lines = [[i , i + 3] for i in range(detail - 3)]
+        return points, lines, None
