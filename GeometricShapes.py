@@ -31,7 +31,7 @@ class Cube(Engine.Object):
         ]
 
         for i in range(len(points)):
-            points[i].multiply(width)
+            points[i] *= width
 
         lines = []
         for i in range(4):
@@ -73,7 +73,7 @@ class Sphere(Engine.Object):
                 y = sin(angle1) * sin(angle2)
                 z = cos(angle1)
                 v = Vector(x, y, z)
-                v.multiply(radius)
+                v *= radius
                 points.append(v)
                 figure_map[i][j] = points.index(v)
 
@@ -289,7 +289,7 @@ class UtahTeapot(Engine.Object):
             except:
                 pass
         for i in range(len(points)):
-            points[i].multiply(scale)
+            points[i] *= scale
         return points, surfaces
 
 
@@ -326,7 +326,7 @@ class FileObject(Engine.Object):
                     pass
 
         for i in range(len(figure)):
-            figure[i].multiply(scale)
+            figure[i] *= scale
         return figure, surfaces
 
 

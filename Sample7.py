@@ -18,9 +18,9 @@ b_map = {
 	(0, 150, 0):     [.35, .55],   # Woodland 0
 
 	(150, 100, 50):    [.55, .65],   # Rock 1
-	(100, 50, 0):    [.65, .8],   # Rock 0
+	(100, 50, 0):    [.65, .7],   # Rock 0
 
-	(255, 255, 255): [.8, 1],    # Snow
+	(255, 255, 255): [.7, 1],    # Snow
 }
 
 def getColor(value):
@@ -34,24 +34,32 @@ engine = Engine(window)
 sphere = Sphere([300, 300, 0], 200, 50)
 generator = OpenSimplex()
 
-for p in sphere.points:
-	v = Vector.get_copy(p)
-	v.remove(Vector(300, 300, 0))
-	n = generator.noise3d(*[i / 100 for i in p.projection]) * 100
-	if n < 10:
-		n = 0
-	v.set_length(n)
-	p.add(v)
+for p in range(len(sphere.points)):
+	v = sphere.points[p].copy()
+	v -= sphere.center
+	n = generator.noise3d(*[i / 100 for i in sphere.points[p][:]]) * 100
+	v.setLength(n)
+	sphere.points[p] += v
 
 sCol = []
 for s in sphere.surfaces:
 	v = Vector()
-	v.add(*[sphere.points[i] for i in s])
-	v.multiply(1 / len(s))
-	v.remove(Vector(*sphere.center))
+	for i in s:
+		v += sphere.points[i]
+	v /= len(s)
+	v -= sphere.center
 	c = (v.length() - 100) / 200 * 2 - 1
 	sCol.append(getColor(c))
 sphere.surface_set(*sCol)
+
+for p in range(len(sphere.points)):
+	v = sphere.points[p].copy()
+	v -= sphere.center
+	if v.length() < 200:
+		v.setLength(200 - v.length())
+		sphere.points[p] += v
+
+
 	
 while True:
 	for event in pygame.event.get():

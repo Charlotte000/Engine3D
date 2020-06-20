@@ -44,7 +44,7 @@ class Engine:
                                 for c, num in enumerate(item[0].surfaces)])
 
         # Sorting to_blit by depth
-        to_blit = sorted(to_blit, key=lambda unit: sum([i.projection[2] for i in unit[1]]) / len(unit[1]))
+        to_blit = sorted(to_blit, key=lambda unit: sum([i[2] for i in unit[1]]) / len(unit[1]))
 
         # Drawing
         for unit in to_blit:
@@ -60,13 +60,13 @@ class Engine:
 
     def draw_depth_map(self, *items):
         def round_depth(surface_depth):
-            array = [p.projection[2] for p in surface_depth]
+            array = [p[2] for p in surface_depth]
             return sum(array) / len(array)
 
         # Collecting to_blit
         to_blit = []
         for item in items:
-            to_blit.extend([Vector.get_copy(item.points[i]) for i in s] for s in item.surfaces)
+            to_blit.extend([item.points[i].copy() for i in s] for s in item.surfaces)
 
         # Sorting by depth
         to_blit = sorted(to_blit, key=lambda surf: round_depth(surf))
@@ -84,22 +84,22 @@ class Engine:
         for surface in to_blit:
             current_len = round_depth(surface) - minlen
             col = current_len / maxlen * 255
-            projected = [point.projection for point in Engine.get_projection(surface)]
+            projected = [point[:2] for point in Engine.get_projection(surface)]
             pygame.draw.polygon(self.screen, (col, col, col), projected)
 
     @staticmethod
     def draw_surface(points, color, surf):
-        projected = [i.projection for i in Engine.get_projection(points)]
+        projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.polygon(surf, color, projected)
 
     @staticmethod
     def draw_line(points, color, surf, width=1):
-        projected = [i.projection for i in Engine.get_projection(points)]
+        projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.line(surf, color, projected[0], projected[1], width)
 
     @staticmethod
     def draw_point(point, color, surf, radius, font, text, text_color):
-        projected = Engine.get_projection([point])[0].projection
+        projected = Engine.get_projection([point])[0][:]
         if radius > 1:
             pygame.draw.circle(surf, color, (round(projected[0]), round(projected[1])), radius)
         else:
@@ -109,8 +109,8 @@ class Engine:
 
     @staticmethod
     def rotate(figure, rotate_point, angleX, angleY, angleZ):
-        for p in figure:
-            p.remove(Vector(*rotate_point))
+        for p in range(len(figure)):
+            figure[p] -= Vector(*rotate_point)
 
         rotationX = [
             [1, 0, 0],
@@ -130,15 +130,13 @@ class Engine:
         for i in range(len(figure)):
             for rot in [rotationX, rotationY, rotationZ]:
                 figure[i] = Engine.matrix_mult(rot, figure[i])
-        for p in figure:
-            p.add(Vector(*rotate_point))
+        for p in range(len(figure)):
+            figure[p] += Vector(*rotate_point)
         return figure
 
     @staticmethod
     def matrix_mult(a, v):
-        b = []
-        for i in v.projection:
-            b.append(i)
+        b = v[0], v[1], v[2]
         result = []
         for ay in range(len(a)):
             result.append(sum([a[ay][bx] * b[bx] for bx in range(len(b))]))
@@ -158,17 +156,16 @@ class Engine:
 
     class Object:
         def __init__(self, center):
-            self.center = center
-            self.rotate_point = center[:]
+            self.center = Vector(*center)
+            self.rotate_point = Vector(*center)
 
             # Angle
             self.angle = Vector()
             self.danglex = self.dangley = 0
 
             # Move figure
-            move = Vector(*self.center)
-            for i in self.points:
-                i.add(move)
+            for i in range(len(self.points)):
+                self.points[i] += self.center
 
             # Drawing settings
             self.point_settings = [[(255, 0, 0)], 7, '', (255, 0, 255)]
@@ -176,7 +173,7 @@ class Engine:
             self.surface_settings = [(0, 0, 255)]
 
         def rotate(self, dx, dy, dz):
-            self.angle.add(Vector(dx, dy, dz))
+            self.angle += Vector(dx, dy, dz)
             Engine.rotate(self.points, self.rotate_point, dx, dy, dz)
 
         def point_set(self, size, text, text_color, *colors):

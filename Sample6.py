@@ -12,11 +12,11 @@ sp = UniformSphere([250, 250, 0], 100, 2000)
 sp.point_set(1, '', [100, 100, 100], [0, 0, 255])
 
 gen = OpenSimplex()
-for i in sp.points:
-	a = Vector.get_copy(i)
-	a.remove(Vector(*sp.center))
-	a.set_length((gen.noise3d(i[0] / 25, i[1] / 25, i[2] / 25) + 1) * 20)
-	i.add(a)
+for i in range(len(sp.points)):
+	a = sp.points[i].copy()
+	a -= sp.center
+	a.setLength((gen.noise3d(sp.points[i][0] / 25, sp.points[i][1] / 25, sp.points[i][2] / 25) + 1) * 20)
+	sp.points[i] += a
 
 while True:
     for event in pygame.event.get():

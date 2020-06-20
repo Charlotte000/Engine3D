@@ -1,73 +1,162 @@
-from math import sqrt, atan, pi, cos, sin
+from math import sqrt, cos, sin, atan2, degrees, radians
+from random import uniform
 
 
 class Vector:
-    def __init__(self, *projection):
-        if projection:
-            self.projection = [i for i in projection]
+    DEGREES = False
+
+    def __init__(self, x=0, y=0, z=0):
+        if type(x) in [list, tuple]:
+            if len(x) == 1:
+                self.x = x[:]
+                self.y = self.z = 0
+            elif len(x) == 2:
+                self.x, self.y = x[:]
+                self.z = 0
+            elif len(x) == 3:
+                self.x, self.y, self.z = x[:]
         else:
-            self.projection = []
+            self.x = x
+            self.y = y
+            self.z = z
 
-    def add(self, *vectors):
-        for vector in vectors:
-            if len(self.projection) < len(vector.projection):
-                self.projection.extend([0] * (len(vector.projection) - len(self.projection)))
-            for i in range(len(vector.projection)):
-                self.projection[i] += vector.projection[i]
-
-    def remove(self, *vectors):
-        for vector in vectors:
-            vector2 = Vector.get_copy(vector)
-            vector2.multiply(-1)
-            self.add(vector2)
-
-    def multiply(self, value):
-        for i in range(len(self.projection)):
-            self.projection[i] *= value
-
-    def set_length(self, length):
-        self.multiply(length / self.length())
-
-    def length(self):
-        return sqrt(sum([pow(d, 2) for d in self.projection]))
-
-    def angle(self):
-        ax, ay = self.projection
-        if ax:
-            return atan(ay / ax) + pi / 2
-        if ay > 0:
-            return pi / 2
-        if ay < 0:
-            return -pi / 2
-        return 0
-
-    def get_rounded(self):
-        return [round(i) for i in self.projection]
-
-    def rotate2d(self, angle):
-        if len(self.projection) < 2:
-            self.projection.extend([0] * (2 - len(self.projection)))
-        x = self.projection[0] * cos(angle) - self.projection[1] * sin(angle)
-        y = self.projection[0] * sin(angle) + self.projection[1] * cos(angle)
-
-        self.projection[0], self.projection[1] = x, y
+    def setLength(self, length):
+        ve = self.copy()
+        if ve.length() > 0:
+            ve *= length / ve.length()
+            self.x, self.y, self.z = ve.x, ve.y, ve.z
         return self
 
+    def length(self):
+        return sqrt(pow(self.x, 2) + pow(self.y, 2) + pow(self.z, 2))
+
+    def angle(self):
+        a = atan2(self.y, self.x)
+        if Vector.DEGREES:
+            return degrees(a)
+        return a
+
+    def setAngle(self, angle):
+        v = Vector.fromAngle(angle)
+        v *= self.length()
+        self.x = v.x
+        self.y = v.y
+        return self
+
+    def rotate(self, angle):
+        if Vector.DEGREES:
+            angle = radians(angle)
+        x = self.x * cos(angle) - self.y * sin(angle)
+        y = self.x * sin(angle) + self.y * cos(angle)
+
+        self.x, self.y = x, y
+        return self
+
+    def copy(self):
+        return Vector(self.x, self.y, self.z)
+
+    def constrain(self, minValue, maxValue):
+        le = self.length()
+        if le > maxValue:
+            self.setLength(maxValue)
+        elif le < minValue:
+            self.setLength(minValue)
+        return self
+    
+    @staticmethod
+    def fromPoints(point1, point2):
+        return Vector(*point2) - Vector(*point1)
+
+    @staticmethod
+    def fromAngle(angle):
+        v = Vector(1, 0)
+        v.rotate(angle)
+        return v
+    
+    @staticmethod
+    def average(*vectors):
+        v = Vector()
+        for vec in vectors:
+            v += vec
+        v /= len(vectors)
+        return v
+
+    @staticmethod
+    def random2D():
+        a = Vector(uniform(-1, 1), uniform(-1, 1))
+        a.setLength(1)
+        return a
+
+    @staticmethod
+    def random3D():
+        a = Vector(uniform(-1, 1), uniform(-1, 1), uniform(-1, 1))
+        a.setLength(1)
+        return a
+    
+    @staticmethod
+    def angleBetween(v1, v2):
+        a = atan2(v1.x * v2.y - v1.y * v2.x, v1.x * v2.x + v1.y * v2.y)
+        if Vector.DEGREES:
+            return degrees(a)
+        return a
+
+    def __add__(self, vector):
+        v = self.copy()
+        v.x += vector.x
+        v.y += vector.y
+        v.z += vector.z
+        return v
+
+    def __sub__(self, vector):
+        v = self.copy()
+        v.x -= vector.x
+        v.y -= vector.y
+        v.z -= vector.z
+        return v
+
+    def __mul__(self, number):
+        v = self.copy()
+        v.x *= number
+        v.y *= number
+        v.z *= number
+        return v
+
+    def __truediv__(self, number):
+        v = self.copy()
+        v.x /= number
+        v.y /= number
+        v.z /= number
+        return v
+
     def __str__(self):
-        return 'Vector' + str(self.projection) + ""
+        return f'Vector[{self.x}, {self.y}, {self.z}]'
 
     def __getitem__(self, item):
-        if item >= len(self.projection):
-            return 0
-        return self.projection[item]
+        return [self.x, self.y, self.z][item]
 
-    @staticmethod
-    def get_from_points(point1, point2):
-        v1 = Vector(*point1)
-        v2 = Vector(*point2)
-        v2.remove(v1)
-        return v2
+    def __setitem__(self, item, value):
+        if item == 0:
+            self.x = value
+        elif item == 1:
+            self.y = value
+        elif item == 2:
+            self.z = value
+        else:
+            raise IndexError
 
-    @staticmethod
-    def get_copy(v):
-        return Vector(*[i for i in v.projection])
+    def __round__(self):
+        return Vector(round(self.x), round(self.y), round(self.z))
+
+    def __iter__(self):
+        return iter([self.x, self.y, self.z])
+
+    def __eq__(self, other):
+        if self.x == other.x and self.y == other.y and self.z == other.z:
+            return True
+        return False
+
+    def __lt__(self, vector):
+        return self.length() < vector.length()
+
+    def __le__(self, vector):
+        return (self < vector) or (self == vector)
