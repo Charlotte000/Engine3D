@@ -1,6 +1,7 @@
 from Engine3D import Engine
 from GeometricShapes import Sphere
 import pygame
+from random import uniform
 from opensimplex import OpenSimplex
 from data.vector import Vector
 
@@ -34,10 +35,11 @@ engine = Engine(window)
 sphere = Sphere([300, 300, 0], 200, 50)
 generator = OpenSimplex()
 
+off = [uniform(0, 1024), uniform(0, 1024), uniform(0, 1024)]
 for p in range(len(sphere.points)):
 	v = sphere.points[p].copy()
 	v -= sphere.center
-	n = generator.noise3d(*[i / 100 for i in sphere.points[p][:]]) * 100
+	n = generator.noise3d(sphere.points[p][0] / 100 + off[0], sphere.points[p][1] / 100 + off[1], sphere.points[p][2] / 100 + off[2]) * 100
 	v.setLength(n)
 	sphere.points[p] += v
 
