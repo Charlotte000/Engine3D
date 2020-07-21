@@ -1,17 +1,14 @@
-from Engine3D import Engine
+from Engine3D import Object3D
 from data.vector import Vector
 from math import pi, sin, cos
 from requests import get
 import numpy
 
 
-class Cube(Engine.Object):
-    def __init__(self, center, size):
+class Cube(Object3D):
+    def __init__(self, center: [float, float, float], size: float):
         """
         Creates cube
-
-        :param list center:
-        :param float size:
         """
         self.points, self.lines, self.surfaces = Cube.create(size)
         self.size = size
@@ -44,14 +41,10 @@ class Cube(Engine.Object):
         return points, lines, surfaces
 
 
-class Sphere(Engine.Object):
-    def __init__(self, center, radius, detail):
+class Sphere(Object3D):
+    def __init__(self, center: [float, float, float], radius: float, detail: int):
         """
         Creates sphere
-
-        :param list center:
-        :param float radius:
-        :param int detail:
         """
         self.radius = radius
         self.points, self.lines, self.surfaces = Sphere.create(detail, radius)
@@ -89,14 +82,10 @@ class Sphere(Engine.Object):
         return points, lines, surfaces
 
 
-class Mesh(Engine.Object):
-    def __init__(self, center, size, detail):
+class Mesh(Object3D):
+    def __init__(self, center: [float, float, float], size: float, detail: int):
         """
         Creates mesh
-
-        :param list center:
-        :param float size:
-        :param int detail:
         """
         self.size = size
         self.detail = detail
@@ -125,14 +114,10 @@ class Mesh(Engine.Object):
         return points, lines, surfaces
 
 
-class MobiusStrip(Engine.Object):
-    def __init__(self, center, size, detail):
+class MobiusStrip(Object3D):
+    def __init__(self, center: [float, float, float], size: float, detail: int):
         """
         Creates Modious strip
-
-        :param list center:
-        :param float size:
-        :param int detail:
         """
         self.size = size
         self.points, self.lines, self.surfaces = MobiusStrip.create(detail, size)
@@ -172,15 +157,10 @@ class MobiusStrip(Engine.Object):
         return points, lines, surfaces
 
 
-class Torus(Engine.Object):
-    def __init__(self, center, radius_min, radius_max, detail):
+class Torus(Object3D):
+    def __init__(self, center: [float, float, float], radius_min: float, radius_max: float, detail: int):
         """
         Creates torus
-
-        :param list center:
-        :param float radius_min:
-        :param float radius_max:
-        :param int detail:
         """
         self.radius_min, self.radius_max = radius_min, radius_max
         self.points, self.lines, self.surfaces = Torus.create(detail, radius_max, radius_min)
@@ -216,14 +196,10 @@ class Torus(Engine.Object):
         return points, lines, surfaces
 
 
-class KleinBottle(Engine.Object):
-    def __init__(self, center, size, detail):
+class KleinBottle(Object3D):
+    def __init__(self, center: [float, float, float], size: float, detail: int):
         """
         Creates Klein bottle
-
-        :param list center:
-        :param float size:
-        :param int detail:
         """
         self.size = size
         self.points, self.lines, self.surfaces = KleinBottle.create(detail, size)
@@ -259,13 +235,10 @@ class KleinBottle(Engine.Object):
         return points, lines, surfaces
 
 
-class UtahTeapot(Engine.Object):
-    def __init__(self, center, size):
+class UtahTeapot(Object3D):
+    def __init__(self, center: [float, float, float], size: float):
         """
         Creates utah teapot
-
-        :param list center:
-        :param float size:
         """
         self.size = size
         self.points, self.surfaces = UtahTeapot.create(size)
@@ -293,17 +266,13 @@ class UtahTeapot(Engine.Object):
         return points, surfaces
 
 
-class FileObject(Engine.Object):
-    def __init__(self, center, filename, size=1):
+class FileObject3D(Object3D):
+    def __init__(self, center: [float, float, float], filename: str, size: float =1):
         """
         Creates object from .obj file
-
-        :param list center:
-        :param str filename:
-        :param float size:
         """
         self.size = size
-        self.points, self.surfaces = FileObject.load(filename, size)
+        self.points, self.surfaces = FileObject3D.load(filename, size)
         self.lines = [[i, i+1] for i in range(0, len(self.points) - 1)]
         super().__init__(center)
 
@@ -330,14 +299,10 @@ class FileObject(Engine.Object):
         return figure, surfaces
 
 
-class UniformSphere(Engine.Object):
-    def __init__(self, center, radius, detail):
+class UniformSphere(Object3D):
+    def __init__(self, center: [float, float, float], radius: float, detail: int):
         """
         Creates a uniform sphere
-
-        :param list center:
-        :param float radius:
-        :param int detail:
         """
         self.points, self.lines, self.surfaces = UniformSphere.create(radius, detail)
         self.radius = radius

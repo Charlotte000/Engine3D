@@ -3,27 +3,87 @@ from math import sin, cos
 import pygame
 
 
+class Object3D:
+    def __init__(self, center: [float, float, float]):
+        self.center = Vector(*center)
+        self.rotate_point = Vector(*center)
+
+        # Angle
+        self.angle = Vector()
+        self.danglex = self.dangley = 0
+
+        # Move figure
+        for i in range(len(self.points)):
+            self.points[i] += self.center
+
+        # Drawing settings
+        self.point_settings = [[(255, 0, 0)], 7, '', (255, 0, 255)]
+        self.line_settings = [[(0, 255, 0)], 5]
+        self.surface_settings = [(0, 0, 255)]
+
+    def rotate(self, dx: float, dy: float, dz: float) -> None:
+        self.angle += Vector(dx, dy, dz)
+        Engine.rotate(self.points, self.rotate_point, dx, dy, dz)
+
+    def point_set(self, size: int, text: str, text_color: [int, int, int], *colors: [int, int, int]) -> None:
+        """
+        Changes settings of point
+        size: Point size
+        text: Text under the point, if '_' - point counter
+        text_color: [r, g, b] color of text
+        colors: [r, g, b] color of the point
+        """
+        self.point_settings = [colors, size, text, text_color]
+
+    def line_set(self, width: int, *colors: [int, int, int]) -> None:
+        """
+        Changes settings of line
+        width: Line width
+        colors: [r, g, b] color of the line
+        """
+        self.line_settings = [colors, width]
+
+    def surface_set(self, *colors: [int, int, int]) -> None:
+        """
+        Changes settings of surface
+        colors: [r, g, b] color of the surface
+        """
+        self.surface_settings = colors
+
+    def rotate_mode(self) -> None:
+        if pygame.mouse.get_pressed()[0]:
+            self.dangley, self.danglex = pygame.mouse.get_rel()
+            self.danglex /= -400
+            self.dangley /= 400
+        pygame.mouse.get_rel()
+
+        self.danglex *= .99
+        self.dangley *= .99
+
+        self.rotate(self.danglex, self.dangley, 0)
+
+
+
 class Engine:
-    def __init__(self, screen):
+    def __init__(self, screen: pygame.Surface):
         pygame.font.init()
         self.screen = screen
         self.font = pygame.font.SysFont('arial', 30)
         self.toDraw = []
 
     
-    def addToDraw(self, *items):
+    def addToDraw(self, *items: list) -> None:
         """
-        Add to draw one or more items. engine.draw() to blit them
-
-        :param list items: Item of [figure, is_points, is_lines, is_surfaces]
+        Add to draw one or more items. 
+        Use engine.draw() to blit them.
+        Items is a list of [figure: Object3D, is_points: bool, is_lines: bool, is_surfaces: bool]
         """
         self.toDraw.extend(items)
 
 
-    def draw(self):
+    def draw(self) -> None:
         """
         Draws items on the screen
-
         """
 
         # Collecting to_blit
@@ -58,7 +118,12 @@ class Engine:
         # Clear toDraw list
         self.toDraw = []
 
-    def draw_depth_map(self, *items):
+    def draw_depth_map(self, *items: [Object3D, bool, bool, bool]) -> None:
+        """
+        Draws items with depth map. 
+        Items is a list of [figure, is_points, is_lines, is_surfaces]
+        """
+
         def round_depth(surface_depth):
             array = [p[2] for p in surface_depth]
             return sum(array) / len(array)
@@ -88,17 +153,17 @@ class Engine:
             pygame.draw.polygon(self.screen, (col, col, col), projected)
 
     @staticmethod
-    def draw_surface(points, color, surf):
+    def draw_surface(points: [Vector], color: [int, int, int], surf: pygame.Surface) -> None:
         projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.polygon(surf, color, projected)
 
     @staticmethod
-    def draw_line(points, color, surf, width=1):
+    def draw_line(points: [Vector], color: [int, int, int], surf: pygame.Surface, width: int =1) -> None:
         projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.line(surf, color, projected[0], projected[1], width)
 
     @staticmethod
-    def draw_point(point, color, surf, radius, font, text, text_color):
+    def draw_point(point: Vector, color: [int, int, int], surf: pygame.Surface, radius: int, font: pygame.font, text: str, text_color: [int, int, int]) -> None:
         projected = Engine.get_projection([point])[0][:]
         if radius > 1:
             pygame.draw.circle(surf, color, (round(projected[0]), round(projected[1])), radius)
@@ -108,7 +173,7 @@ class Engine:
             surf.blit(font.render(str(text), True, text_color), (round(projected[0]), round(projected[1])))
 
     @staticmethod
-    def rotate(figure, rotate_point, angleX, angleY, angleZ):
+    def rotate(figure: [Vector], rotate_point: Vector, angleX: float, angleY: float, angleZ: float) -> [Vector]:
         for p in range(len(figure)):
             figure[p] -= Vector(*rotate_point)
 
@@ -135,7 +200,7 @@ class Engine:
         return figure
 
     @staticmethod
-    def matrix_mult(a, v):
+    def matrix_mult(a: list, v: Vector) -> Vector:
         b = v[0], v[1], v[2]
         result = []
         for ay in range(len(a)):
@@ -143,7 +208,7 @@ class Engine:
         return Vector(*result)
 
     @staticmethod
-    def get_projection(figure):
+    def get_projection(figure: [Vector]) -> list:
         projected_points = []
         for c in figure:
             projection = [
@@ -153,60 +218,3 @@ class Engine:
             p = Engine.matrix_mult(projection, c)
             projected_points.append(p)
         return projected_points
-
-    class Object:
-        def __init__(self, center):
-            self.center = Vector(*center)
-            self.rotate_point = Vector(*center)
-
-            # Angle
-            self.angle = Vector()
-            self.danglex = self.dangley = 0
-
-            # Move figure
-            for i in range(len(self.points)):
-                self.points[i] += self.center
-
-            # Drawing settings
-            self.point_settings = [[(255, 0, 0)], 7, '', (255, 0, 255)]
-            self.line_settings = [[(0, 255, 0)], 5]
-            self.surface_settings = [(0, 0, 255)]
-
-        def rotate(self, dx, dy, dz):
-            self.angle += Vector(dx, dy, dz)
-            Engine.rotate(self.points, self.rotate_point, dx, dy, dz)
-
-        def point_set(self, size, text, text_color, *colors):
-            """
-            Changes settings of point
-
-            :param int size: Point size
-            :param str text: Text under the point, if '_' - point counter
-            :param list text_color: [r, g, b] color of text
-            :param list colors: [r, g, b] color of the point
-            """
-            self.point_settings = [colors, size, text, text_color]
-
-        def line_set(self, width, *colors):
-            """
-            Changes settings of line
-
-            :param int width: Line width
-            :param colors: [r, g, b] color of the line
-            """
-            self.line_settings = [colors, width]
-
-        def surface_set(self, *colors):
-            self.surface_settings = colors
-
-        def rotate_mode(self):
-            if pygame.mouse.get_pressed()[0]:
-                self.dangley, self.danglex = pygame.mouse.get_rel()
-                self.danglex /= -400
-                self.dangley /= 400
-            pygame.mouse.get_rel()
-
-            self.danglex *= .99
-            self.dangley *= .99
-
-            self.rotate(self.danglex, self.dangley, 0)
