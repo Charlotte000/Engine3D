@@ -3,10 +3,12 @@ from data.vector import Vector
 from math import pi, sin, cos
 from requests import get
 import numpy
+from typing import List, Tuple
+
 
 
 class Cube(Object3D):
-    def __init__(self, center: [float, float, float], size: float):
+    def __init__(self, center: Tuple[float, float, float], size: float):
         """
         Creates cube
         """
@@ -42,7 +44,7 @@ class Cube(Object3D):
 
 
 class Sphere(Object3D):
-    def __init__(self, center: [float, float, float], radius: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], radius: float, detail: int):
         """
         Creates sphere
         """
@@ -83,7 +85,7 @@ class Sphere(Object3D):
 
 
 class Mesh(Object3D):
-    def __init__(self, center: [float, float, float], size: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], size: float, detail: int):
         """
         Creates mesh
         """
@@ -115,7 +117,7 @@ class Mesh(Object3D):
 
 
 class MobiusStrip(Object3D):
-    def __init__(self, center: [float, float, float], size: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], size: float, detail: int):
         """
         Creates Modious strip
         """
@@ -158,7 +160,7 @@ class MobiusStrip(Object3D):
 
 
 class Torus(Object3D):
-    def __init__(self, center: [float, float, float], radius_min: float, radius_max: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], radius_min: float, radius_max: float, detail: int):
         """
         Creates torus
         """
@@ -197,7 +199,7 @@ class Torus(Object3D):
 
 
 class KleinBottle(Object3D):
-    def __init__(self, center: [float, float, float], size: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], size: float, detail: int):
         """
         Creates Klein bottle
         """
@@ -236,7 +238,7 @@ class KleinBottle(Object3D):
 
 
 class UtahTeapot(Object3D):
-    def __init__(self, center: [float, float, float], size: float):
+    def __init__(self, center: Tuple[float, float, float], size: float):
         """
         Creates utah teapot
         """
@@ -267,7 +269,7 @@ class UtahTeapot(Object3D):
 
 
 class FileObject3D(Object3D):
-    def __init__(self, center: [float, float, float], filename: str, size: float =1):
+    def __init__(self, center: Tuple[float, float, float], filename: str, size: float =1):
         """
         Creates object from .obj file
         """
@@ -300,7 +302,7 @@ class FileObject3D(Object3D):
 
 
 class UniformSphere(Object3D):
-    def __init__(self, center: [float, float, float], radius: float, detail: int):
+    def __init__(self, center: Tuple[float, float, float], radius: float, detail: int):
         """
         Creates a uniform sphere
         """

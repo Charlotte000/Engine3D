@@ -1,10 +1,11 @@
 from data.vector import Vector
 from math import sin, cos
 import pygame
+from typing import Tuple, List
 
 
 class Object3D:
-    def __init__(self, center: [float, float, float]):
+    def __init__(self, center: Tuple[float, float, float]) -> None:
         self.center = Vector(*center)
         self.rotate_point = Vector(*center)
 
@@ -25,7 +26,7 @@ class Object3D:
         self.angle += Vector(dx, dy, dz)
         Engine.rotate(self.points, self.rotate_point, dx, dy, dz)
 
-    def point_set(self, size: int, text: str, text_color: [int, int, int], *colors: [int, int, int]) -> None:
+    def point_set(self, size: int, text: str, text_color: Tuple[int, int, int], *colors: Tuple[int, int, int]) -> None:
         """
         Changes settings of point
         size: Point size
@@ -35,7 +36,7 @@ class Object3D:
         """
         self.point_settings = [colors, size, text, text_color]
 
-    def line_set(self, width: int, *colors: [int, int, int]) -> None:
+    def line_set(self, width: int, *colors: Tuple[int, int, int]) -> None:
         """
         Changes settings of line
         width: Line width
@@ -43,7 +44,7 @@ class Object3D:
         """
         self.line_settings = [colors, width]
 
-    def surface_set(self, *colors: [int, int, int]) -> None:
+    def surface_set(self, *colors: Tuple[int, int, int]) -> None:
         """
         Changes settings of surface
         colors: [r, g, b] color of the surface
@@ -65,18 +66,18 @@ class Object3D:
 
 
 class Engine:
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: pygame.Surface) -> None:
         pygame.font.init()
         self.screen = screen
         self.font = pygame.font.SysFont('arial', 30)
         self.toDraw = []
 
     
-    def addToDraw(self, *items: list) -> None:
+    def addToDraw(self, *items: Tuple[Object3D, bool, bool, bool]) -> None:
         """
         Add to draw one or more items. 
         Use engine.draw() to blit them.
-        Items is a list of [figure: Object3D, is_points: bool, is_lines: bool, is_surfaces: bool]
+        Items is a tuple of (figure, is_points, is_lines, is_surfaces)
         """
         self.toDraw.extend(items)
 
@@ -118,10 +119,10 @@ class Engine:
         # Clear toDraw list
         self.toDraw = []
 
-    def draw_depth_map(self, *items: [Object3D, bool, bool, bool]) -> None:
+    def draw_depth_map(self, *items: Tuple[Object3D, bool, bool, bool]) -> None:
         """
         Draws items with depth map. 
-        Items is a list of [figure, is_points, is_lines, is_surfaces]
+        Items is a tuple of (figure, is_points, is_lines, is_surfaces)
         """
 
         def round_depth(surface_depth):
@@ -153,17 +154,17 @@ class Engine:
             pygame.draw.polygon(self.screen, (col, col, col), projected)
 
     @staticmethod
-    def draw_surface(points: [Vector], color: [int, int, int], surf: pygame.Surface) -> None:
+    def draw_surface(points: List[Vector], color: Tuple[int, int, int], surf: pygame.Surface) -> None:
         projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.polygon(surf, color, projected)
 
     @staticmethod
-    def draw_line(points: [Vector], color: [int, int, int], surf: pygame.Surface, width: int =1) -> None:
+    def draw_line(points: List[Vector], color: Tuple[int, int, int], surf: pygame.Surface, width: int =1) -> None:
         projected = [i[:2] for i in Engine.get_projection(points)]
         pygame.draw.line(surf, color, projected[0], projected[1], width)
 
     @staticmethod
-    def draw_point(point: Vector, color: [int, int, int], surf: pygame.Surface, radius: int, font: pygame.font, text: str, text_color: [int, int, int]) -> None:
+    def draw_point(point: Vector, color: Tuple[int, int, int], surf: pygame.Surface, radius: int, font: pygame.font, text: str, text_color: Tuple[int, int, int]) -> None:
         projected = Engine.get_projection([point])[0][:]
         if radius > 1:
             pygame.draw.circle(surf, color, (round(projected[0]), round(projected[1])), radius)
@@ -173,7 +174,7 @@ class Engine:
             surf.blit(font.render(str(text), True, text_color), (round(projected[0]), round(projected[1])))
 
     @staticmethod
-    def rotate(figure: [Vector], rotate_point: Vector, angleX: float, angleY: float, angleZ: float) -> [Vector]:
+    def rotate(figure: List[Vector], rotate_point: Vector, angleX: float, angleY: float, angleZ: float) -> [Vector]:
         for p in range(len(figure)):
             figure[p] -= Vector(*rotate_point)
 
@@ -208,7 +209,7 @@ class Engine:
         return Vector(*result)
 
     @staticmethod
-    def get_projection(figure: [Vector]) -> list:
+    def get_projection(figure: List[Vector]) -> list:
         projected_points = []
         for c in figure:
             projection = [
